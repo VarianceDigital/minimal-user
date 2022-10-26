@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block metatags %}
+<title>Forgot | Minimal+User</title>
+<meta name="description" content="Forgot page of our demo showcasing useful tech.">
+{% endblock %}
+
+{% block contents %}
+<div class="container">
+    <div>
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{url_for('bl_home.index')}}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Forgot access key</li>
+        </ol>
+    </div>
+    <h1 class="mb-4">Forgot access key</h1>
+    
+    <div class="row">
+        <div class="col-sm-5">
+            <h5 class="mb-1">Ask for a new key</h5>
+            <p>Insert the email used for the subscription.<br>We will send you an email with the new access key.</p>
+        </div>
+        <div class="col-sm-7">
+            <form class="row g-2" method="post">
+                <div class="col-auto">
+                    <label for="email" class="visually-hidden">Your email</label>
+                    <input type="email" required class="form-control form-control-sm" size="40" onkeyup="button_send_on();" id="email" name="email" placeholder="Your email">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm" id="btn_send_new_key" name="btn_send_new_key" disabled>I need a new key</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="restore_email_input();">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    
+</div>
+<script>
+    function restore_email_input(){
+        var button_save = document.getElementById('btn_send_new_key');
+        var input_email = document.getElementById('email');
+        input_email.value=""
+        button_save.disabled=true;
+    }
+    function button_send_on()
+    {
+        var button_save = document.getElementById('btn_send_new_key');
+        button_save.disabled=false;
+    }
+</script>
+
+{% endblock %}

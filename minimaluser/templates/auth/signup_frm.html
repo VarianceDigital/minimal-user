@@ -1,0 +1,52 @@
+
+{% extends "base.html" %}
+
+{% block metatags %}
+<title>Sign-up | Minimal+User</title>
+<meta name="description" content="Signup form of our demo showcasing useful tech.">
+{% endblock %}
+
+{% block contents %}
+<div class="container">
+  <div>
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="{{url_for('bl_home.index')}}">Home</a></li>
+        <li class="breadcrumb-item" aria-current="page">Sign up</li>
+    </ol>
+  </div>
+  
+  <h1>Sign up to unlock the gallery</h1>
+
+  <section class="px-4 py-4 px-md-5 mt-4 text-center text-lg-start" style="background-color: hsl(0, 0%, 96%)">
+    <div class="row gx-lg-5 align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h4 style="color: hsl(217, 10%, 50.8%)">
+          If you want to see all Pi and Tau pictures using our on-line demo, please
+          sign up; you will receive an access key via email!
+        </h4>
+      </div>
+
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <div class="card">
+          <div class="card-body py-5 px-md-5">
+            <form method="post">
+              <!-- Email input -->
+              <div class="form-outline">
+                <label class="form-label" for="email">Email address</label>
+                <input type="email" id="email" name="email" class="form-control" required />
+              </div>
+              <!-- Submit button -->
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-block mb-3 mt-4" name="btn_signup">
+                  Let me use this demo!
+                </button>
+                <p class="text-muted">Just <a href="{{url_for('bl_auth.login')}}">login</a> if you are already registered.</p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

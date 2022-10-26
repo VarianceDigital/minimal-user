@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block metatags %}
+<title>About | Minimal</title>
+<meta name="description" content="Explain minimal.">
+{% endblock %}
+
+{% block contents %}
+<div class="container">
+    <div>
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{url_for('bl_home.index')}}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">About</li>
+        </ol>
+    </div>
+
+    <h1>About this site</h1>
+    <p class="lead">This site is a demo for a minimalistic yet scalable Flask + Bootstrap 5 + PostgreSQL project.</p>
+    <p>The site showcases <strong>a complete implementation of the basic User Authentication + Authorization use cases.</strong></p>
+    <p>It also features many basic interesting goodies, such as: complete responsiveness, sound structure, modals + aletrs, a full fledged cookie banner,
+        a navbar with highlights, nice urls and other SEO crucial details.</p>
+    <p>Get the code on GitHub <a href="https://github.com/VarianceDigital/minimal-db" target="_blank">here</a></p>
+    <p>Read full info <a href="https://medium.com/variance-digital/flask-bootstrap-5-starter-web-sites-1f1237a85e83" target="_blank">here</a></p>
+    
+</div>
+{% endblock %}

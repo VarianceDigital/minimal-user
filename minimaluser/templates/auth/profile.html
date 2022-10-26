@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block metatags %}
+<title>Profile | Minimal+User</title>
+<meta name="description" content="User profile for the 'Minimal+User' demo.">
+{% endblock %}
+
+{% block contents %}
+<div class="container">
+    <div>
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{url_for('bl_home.index')}}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">User Profile</li>
+        </ol>
+    </div>
+    <h1 class="mb-4">Your profile</h1>    
+    <div class="row">
+        <div class="col-sm-5">
+            <h5 class="mb-1">User name</h5>
+            <p>The username was assigned at sign-up: you can change it!<br>
+                Must be bigger than 3 characters and must be unique.
+            </p>
+        </div>
+        <div class="col-sm-7">
+            <form class="row g-2" method="post">
+                <div class="col-auto">
+                    <label for="username" class="visually-hidden">User name</label>
+                    <input type="text" required class="form-control form-control-sm" maxlength="99" minlength="4" size="40" 
+                           onkeyup="button_save_username_on();" id="username" name="username" placeholder="User name" value="{{g.user_name}}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm" id="btn_save_username" name="btn_save_username" disabled>Save</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="restore_username_input();">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+
+    <div class="row">
+        <div class="col-sm-5">
+            <h5 class="mb-1">Email</h5>
+            <p>Your email used to login. You may change it:<br>
+                you will receive an email - click the link to verify your new 
+                login.<br>
+                <strong>WARNING</strong>: you will receive a NEW access key; use it
+                to login.
+            </p>
+        </div>
+        <div class="col-sm-7">
+            <form class="row g-2" method="post">
+                <div class="col-auto">
+                    <label for="email" class="visually-hidden">Email</label>
+                    <input type="email" required class="form-control form-control-sm" size="40" 
+                           onkeyup="button_save_email_on();" id="email" name="email" placeholder="Email" value="{{g.user_email}}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm" id="btn_save_email" name="btn_save_email" disabled>Save</button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="restore_email_input();">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-5">
+            <h5 class="mb-1">Access key</h5>
+            <p>Change your access key. <br>
+        </div>
+        <div class="col-sm-7" id="accesskeydiv">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="accesskey" class="form-label mb-1">Your current access key</label>
+                    <input type="password" class="form-control form-control-sm {%if error==105%} is-invalid {%endif%}" 
+                    id="accesskey" name="accesskey" aria-describedby="validationServerUserAccessKey" required>
+                    <div id="validationServerUserAccessKey" class="invalid-feedback">
+                        Unrecognized access key
+                    </div>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <label for="newaccesskey" class="form-label mb-1">New access key</label>
+                    <input type="password" class="form-control form-control-sm {%if error==107%} is-invalid {%endif%}" id="newaccesskey" name="newaccesskey" aria-describedby="validationServerUserAccessKey" required>
+                    <div id="validationServerNewAccessKey" class="invalid-feedback">
+                        Invalid access key: must be of at least 8 characters, including a letter and a digit
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmaccesskey" class="form-label mb-1">Confirm new access key</label>
+                    <input type="password" class="form-control form-control-sm {%if error==106%} is-invalid {%endif%}" 
+                    id="confirmaccesskey" name="confirmaccesskey" aria-describedby="validationServerConfirmationAccessKey" required>
+                    <div id="validationServerConfirmationAccessKey" class="invalid-feedback">
+                        Access key and confirm access key should be equal
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" id="btn_changeaccesskey" name="btn_changeaccesskey">Update access key</button>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-5">
+            <h5  class="mb-1">Your custom tile</h5>
+            <p>It was assigned to you during sign-up.<br>
+        </div>
+        <div class="col-sm-7">
+            <a href="{{url_for('bl_photoalbum.list')}}"><img src="{{s3tileurl}}{{record['aut_tile']}}" alt="{{record['aut_name']}}" width="64" height="64"></a>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-5">
+            <h5  class="mb-1">Delete subscription</h5>
+            <p>All yout images and data will be deleted.<br>
+            <strong>Warning</strong>: closing your account cannot be undone.</p>
+        </div>
+        <div class="col-sm-7">
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete_subs_modal">Delete subscription...</button>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="delete_subs_modal" tabindex="-1" aria-labelledby="delete_subs_modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">CatLoader</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure to delete your subscription?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{url_for('bl_auth.deleteaccount')}}" class="btn btn-primary">Delete it</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function restore_email_input(){
+        var button_save_email = document.getElementById('btn_save_email');
+        var input_email = document.getElementById('email');
+        input_email.value="{{g.user_email}}"
+        button_save_email.disabled=true;
+    }
+    function restore_username_input(){
+        var button_save_username = document.getElementById('btn_save_username');
+        var input_username = document.getElementById('username');
+        input_username.value="{{g.user_name}}"
+        button_save_username.disabled=true;
+    }
+    function button_save_email_on()
+    {
+        var button_save_email = document.getElementById('btn_save_email');
+        button_save_email.disabled=false;
+    }
+    function button_save_username_on()
+    {
+        var button_save_username = document.getElementById('btn_save_username');
+        button_save_username.disabled=false;
+    }
+</script>
+{%if error>=105 and error<=107%}
+<script>
+    window.addEventListener('load', function() {
+        document.getElementById("accesskeydiv").scrollIntoView();
+    })
+</script>
+{%endif%}
+{% endblock %}

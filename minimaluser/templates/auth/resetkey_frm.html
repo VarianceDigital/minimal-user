@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block metatags %}
+<title>Reset key | Minimal+User</title>
+<meta name="description" content="Our demo showcasing useful tech.">
+{% endblock %}
+
+{% block contents %}
+<div class="container">
+    <div>
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{url_for('bl_home.index')}}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Reset access key</li>
+        </ol>
+    </div>
+    <h1 class="mb-4">Reset access key</h1>
+    
+    <div class="row">
+        <div class="col-sm-5">
+            <h5 class="mb-1">Access key</h5>
+            <p>Change your access key. <br>
+        </div>
+        <div class="col-sm-7" id="accesskeydiv">
+            <form method="post"> 
+                <div class="mb-3">
+                    <label for="otp" class="form-label mb-1">OTP Code (you received via email)</label>
+                    <input type="password" class="form-control form-control-sm {%if error==111%} is-invalid {%endif%}" 
+                    id="otp" name="otp" aria-describedby="validationServerUserOTP" required>
+                    <div id="validationServerUserOTP" class="invalid-feedback">
+                        Invalid code
+                    </div>
+                </div>
+                <hr>               
+                <div class="mb-3">
+                    <label for="newaccesskey" class="form-label mb-1">New access key</label>
+                    <input type="password" class="form-control form-control-sm {%if error==107%} is-invalid {%endif%}" id="newaccesskey" name="newaccesskey" aria-describedby="validationServerUserAccessKey" required>
+                    <div id="validationServerNewAccessKey" class="invalid-feedback">
+                        Invalid access key: must be of at least 8 characters, including a letter and a digit
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmaccesskey" class="form-label mb-1">Confirm new access key</label>
+                    <input type="password" class="form-control form-control-sm {%if error==106%} is-invalid {%endif%}" 
+                    id="confirmaccesskey" name="confirmaccesskey" aria-describedby="validationServerConfirmationAccessKey" required>
+                    <div id="validationServerConfirmationAccessKey" class="invalid-feedback">
+                        Access key and confirm access key should be equal
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" id="btn_resetaccesskey" name="btn_resetaccesskey">Reset access key</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

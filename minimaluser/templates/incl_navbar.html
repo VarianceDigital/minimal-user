@@ -1,0 +1,53 @@
+<!-- Fixed navbar -->
+<nav class="navbar navbar-expand-md navbar-light fixed-top shadow-sm" style="background-color: #b9c0f0;">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{{url_for('bl_home.index')}}">
+            <img src="{{url_for('static', filename='images/varianceicon.svg')}}" alt="" height="30" width="41"
+                class="d-inline-block" style="position: relative;top: -2px;">
+            Minimal + User
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link {{mc['home']}}" aria-current="page" href="{{url_for('bl_home.index')}}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{mc['about']}}" href="{{url_for('bl_home.about')}}">About</a>
+                </li>
+                <li class="nav-item d-none d-md-block">
+                    <a class="nav-link">&nbsp;|&nbsp;</a>
+                </li>
+                <li class="nav-item d-block d-md-none">
+                    <hr class="dropdown-divider">
+                </li>
+                {% if g.user_is_logged %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="bi bi-person-circle"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">{{g.user_email}}</h6></li>
+                        <li><h6 class="dropdown-header text-muted" style="font-size:small;">({{g.user_name}})</h6></li>  
+                        {% if not g.user_confirmed %}<li><h6 class="dropdown-header text-warning"><strong><i>Please confirm subscription!</i></strong></h6></li>{%endif%}  
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{url_for('bl_auth.userprofile')}}">Your profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{url_for('bl_auth.logout')}}">Logout</a></li>       
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('bl_auth.login')}}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('bl_auth.signup')}}"><strong>Sign up</strong> </a>
+                </li>
+                {%endif%}
+            </ul>
+        </div>
+    </div>
+</nav>
