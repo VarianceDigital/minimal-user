@@ -38,7 +38,7 @@ def pre_operations():
 
 
 #WRAPPER FOR COOKIE SETTINGS 
-def manageCookiePolicy(view):
+def manage_cookie_policy(view):
 
     @functools.wraps(view)
     def wrapped_view(**kwargs):
@@ -93,21 +93,3 @@ def confirmation_required(view):
         return view(**kwargs)
 
     return wrapped_view
-
-
-def get_u_state_from_g():
-    #POSSIBLE VALUES:
-    #   0 => undefined state
-    #   1 => guest
-    #   2 => user NOT confirmed
-    #   3 => user confirmed
-    if g.user_confirmed:
-        return 3
-    elif g.user_is_logged:
-        return 2
-    elif not g.missing_token and not g.invalid_token:
-        #if user is logged then cannot be "guest" :)
-        #So, if the token is there, and is valid => user is "guest"!
-        return 1
-
-    return 0

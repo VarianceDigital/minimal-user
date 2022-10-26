@@ -10,7 +10,7 @@ from .layoutUtils import *
 bp = Blueprint('bl_auth', __name__, url_prefix='/auth')
 
 @bp.route('/signup',methods=('GET', 'POST'))
-@manageCookiePolicy
+@manage_cookie_policy
 def signup():
     mc = set_menu("signup")
     error = 0
@@ -50,7 +50,7 @@ def signup():
  
 
 @bp.route('/login',methods=('GET', 'POST'))
-@manageCookiePolicy
+@manage_cookie_policy
 def login():
     mc = set_menu("login")
     if request.method == 'POST':
@@ -69,7 +69,7 @@ def login():
 
 
 @bp.route('/logout')
-@manageCookiePolicy
+@manage_cookie_policy
 def logout():
     user_logout(os.environ["JWT_SECRET_HTML"])
     flash("See you soon!") 
@@ -78,7 +78,7 @@ def logout():
 
 @bp.route('/userprofile',methods=('GET', 'POST'))
 @login_required
-@manageCookiePolicy
+@manage_cookie_policy
 def userprofile():
     error = 0
     
@@ -151,7 +151,7 @@ def userprofile():
 
 
 @bp.route('/forgotkey',methods=('GET', 'POST'))
-@manageCookiePolicy
+@manage_cookie_policy
 def forgotkey():
 
     mc = set_menu("forgotkey")
@@ -186,7 +186,7 @@ def forgotkey():
 
 
 @bp.route('/resetkey/<token>',methods=('GET', 'POST'))
-@manageCookiePolicy
+@manage_cookie_policy
 def resetkey(token):
 
     #SECURITY CHECK: DECODE OTP PASSED TO ENDPOINT
