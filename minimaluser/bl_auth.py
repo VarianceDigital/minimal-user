@@ -60,7 +60,7 @@ def login():
             if user:
                 user_login(user,os.environ["JWT_SECRET_HTML"]) #UNLOCK ALL FEATURES
                 flash("You are logged in :)") 
-                return redirect(url_for('bl_photoalbum.list'))
+                return redirect(url_for('bl_home.index'))
             else:
                 user_logout(os.environ["JWT_SECRET_HTML"])
                 flash("Could not login!")
@@ -85,15 +85,7 @@ def userprofile():
     mc = set_menu("userprofile")
     if request.method == 'POST':
         
-        if 'btn_showuploads' in request.form:
-            session['show_users_images_only'] = True
-            session['show_favs_only'] = False
-            return redirect(url_for('bl_photoalbum.list'))
-        elif 'btn_showlikes' in request.form:
-            session['show_favs_only'] = True 
-            session['show_users_images_only'] = False
-            return redirect(url_for('bl_photoalbum.list'))  
-        elif 'btn_save_username'  in request.form:
+        if 'btn_save_username'  in request.form:
             form_data = read_data_from_form()
             user_name = form_data['username']
             error = db_check_username(user_name)
@@ -150,7 +142,7 @@ def userprofile():
                 flash("We sent you a new email containing a link: please click the link and confirm your change.") 
                 flash("WARNING: your access key has been changed!") 
 
-                return redirect(url_for('bl_photoalbum.list'))             
+                return redirect(url_for('bl_home.index'))             
 
     record = db_get_user_data(g.user_id)
     s3tileurl = os.environ["AWS_TILES_BUCKET_URL"]
