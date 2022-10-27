@@ -426,7 +426,7 @@ def db_check_username(user_name):
 #           START             *
 #******************************
 
-def db_create_user_entry(email, access_key, custom_name):
+def db_create_user_entry(email, access_key, custom_name, tile_filename):
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
 
@@ -434,11 +434,11 @@ def db_create_user_entry(email, access_key, custom_name):
     #CREATE NEW USER
     cur.execute("""
                     INSERT INTO minimaluser.tbl_auth(
-	                aut_email, aut_key, aut_key_temp, aut_name)
-	                VALUES (%s, %s, %s,%s)
+	                aut_email, aut_key, aut_key_temp, aut_name, aut_tile)
+	                VALUES (%s, %s, %s,%s,%s)
                     RETURNING aut_id;
                     """, 
-                    (email, hash, access_key, custom_name,)
+                    (email, hash, access_key, custom_name,tile_filename)
     )
     
     #GET THE NEWLY CREATED ID OF THE USER
@@ -651,7 +651,7 @@ def db_delete_account(aut_id):
 #          START               *
 #*******************************
 
-def db_set_custom_tile(aut_id,custom_color):
+def db_create_custom_tile(custom_color):
     
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
@@ -670,50 +670,40 @@ def db_set_custom_tile(aut_id,custom_color):
     )
     user_tile = cur.fetchone()
 
+    cur.close()
+
     #3. CREATE AN UNIQUE FILENAME FOR THE CUSTOM TILE
     unique_filename = str(uuid.uuid4())+'.svg'
     
-    #4. UPDATE USER WITH TILE'S FILENAME
-    cur.execute("""
-                    UPDATE minimaluser.tbl_auth
-	                set aut_tile=%s
-	                WHERE aut_id=%s
-                    """, 
-                    (unique_filename, aut_id, )
-    )
-    db.commit()
-    cur.close()
-  
-    #5. GET SVG TEXT OF TILE
+    #4. GET SVG TEXT OF TILE
     tile_text = user_tile['tle_svg']
 
-    #6. FIND ALL THE COLORS OF THE TILE
+    #5. FIND ALL THE COLORS OF THE TILE
     fills = re.findall(r'cls-\d+{fill:#\w+;}', tile_text)
     allcolors = list(map(lambda x: re.findall('#\w+;',x)[0], fills))
     
-    #7. SUBTITUTE ALL COLORS WITH RANDOM COLORS
+    #6. SUBTITUTE ALL COLORS WITH RANDOM COLORS
     #   FIRST AND LAST COLORS ARE SPECIAL
     r = lambda: random.randint(0,255)
     for idx, c in enumerate(allcolors):
-        #THE FIRST COLOR IS THE CUSTOM COLOR!
+        #THE FIRST COLOR IS THE CUSTOM NICKNAME COLOR!
         if idx == 0:
             tile_text = tile_text.replace(c, custom_color)
         else:
             randomcolor = '#{:02x}{:02x}{:02x}'.format(r(), r(), r())
             tile_text = tile_text.replace(c,randomcolor)
 
-    #8. CHOOSE A RANDOM FLUE COLOR
+    #7. CHOOSE A RANDOM FLUE COLOR
     fluecolors = ["#c71585","#ff1493","#dc1435","#00bfff","#ffda89","#477979","#f4a460"]
     fluerandomcolor = random.choice(fluecolors)
 
-    #9. THE LAST OF THE TILES COLOR IS SUBSTITUTED WITH A FLUE COLO
+    #8. THE LAST OF THE TILES COLOR IS SUBSTITUTED WITH A FLUE COLO
     tile_text = tile_text.replace(randomcolor,fluerandomcolor)
-
-    #10. CREATE A FILE ON S3 WITH THE TILES SVG TEXT AND FILENAME
-    write_tile_to_s3(unique_filename,os.environ["AWS_TILES_BUCKET_NAME"],tile_text)    
+    return unique_filename, tile_text
     
 
 def db_create_custom_name():
+    #0. Open db connection
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
 
@@ -722,7 +712,8 @@ def db_create_custom_name():
 
     record = cur.fetchone()
     min_adj_id = record['min']    
-    max_adj_id = record['max']   
+    max_adj_id = record['max']
+    #1a. CREATE RANDOM ID FOR ADJECTIVE   
     rnd_adj_id = random.randint(min_adj_id,max_adj_id) 
 
     #2. GET MIN AND MAX ID FOR ANIMALS
@@ -730,7 +721,8 @@ def db_create_custom_name():
 
     record = cur.fetchone()
     min_animal_id = record['min']    
-    max_animal_id = record['max']    
+    max_animal_id = record['max']
+    #2a. CREATE RANDOM ID FOR ANIMALS
     rnd_animal_id = random.randint(min_animal_id,max_animal_id)
 
     #3. GET MIN AND MAX ID FOR COLORS
@@ -739,8 +731,10 @@ def db_create_custom_name():
     record = cur.fetchone()
     min_color_id = record['min']    
     max_color_id = record['max']
+    #3a. CREATE RANDOM ID FOR COLOR
     rnd_color_id = random.randint(min_color_id,max_color_id)
 
+    #4 GET ADJECTIVE, NAME and COLOR
     cur.execute("SELECT * FROM namer.tbl_noun where nou_id=%s",(rnd_adj_id,))
     record = cur.fetchone()
     rnd_adj = record['nou_noun']
@@ -756,8 +750,10 @@ def db_create_custom_name():
 
     cur.close()
 
+    #GET RANDOM NUMBER
     rnd_number = create_numeric_otp()
 
+    #CREATE CUSTOM NICKNAME
     custom_name = "{}-{}-{}-{}".format(rnd_adj,rnd_animal,rnd_number,rnd_color_name)
     
     return custom_name, rnd_color    

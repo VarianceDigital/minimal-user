@@ -26,8 +26,11 @@ def signup():
                 email = form_data['email']
                 access_key = create_random_access_key()
                 custom_name, custom_color = db_create_custom_name()
-                new_id = db_create_user_entry(form_data['email'], access_key, custom_name)
-                db_set_custom_tile(new_id,custom_color)
+                tile_filename,tile_text = db_create_custom_tile(custom_color)
+                new_id = db_create_user_entry(form_data['email'], access_key, custom_name, tile_filename)
+                #CREATE A FILE ON S3 WITH THE TILES SVG TEXT AND FILENAME
+                write_tile_to_s3(tile_filename,os.environ["AWS_TILES_BUCKET_NAME"],tile_text)    
+                
                 #Prepare data for confirmation email
                 email_link_token = create_email_link_token(new_id, email, os.environ["JWT_SECRET_HTML"])
                 
