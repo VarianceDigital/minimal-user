@@ -438,7 +438,7 @@ def db_create_user_entry(email, access_key, custom_name, tile_filename):
 	                VALUES (%s, %s, %s,%s,%s)
                     RETURNING aut_id;
                     """, 
-                    (email, hash, access_key, custom_name,tile_filename)
+                    (email, hash, access_key, custom_name, tile_filename,)
     )
     
     #GET THE NEWLY CREATED ID OF THE USER
