@@ -544,7 +544,10 @@ def ext_send_email(user_email, user_aut_key_or_otp, email_link_url, email_bluepr
     r = requests.get(mailer_url+email_blueprint+'/'+email_service+'/'+encoded_payload)
 
 
-def db_set_user_confirmed(aut_id):
+def db_set_user_confirmed(user,secret):
+
+    promote_user_to_logged(user, secret)
+
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
 
