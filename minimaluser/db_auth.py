@@ -697,7 +697,7 @@ def db_create_custom_tile(custom_color):
     fluecolors = ["#c71585","#ff1493","#dc1435","#00bfff","#ffda89","#477979","#f4a460"]
     fluerandomcolor = random.choice(fluecolors)
 
-    #8. THE LAST OF THE TILES COLOR IS SUBSTITUTED WITH A FLUE COLO
+    #8. THE LAST OF THE TILES COLOR IS SUBSTITUTED WITH A FLUE COLOR
     tile_text = tile_text.replace(randomcolor,fluerandomcolor)
     return unique_filename, tile_text
     
