@@ -556,7 +556,7 @@ def db_set_user_confirmed(user,secret):
 	                set aut_confirmed=true
 	                WHERE aut_id=%s
                     """, 
-                    (aut_id,)
+                    (user['aut_id'],)
     )
     
     db.commit()
