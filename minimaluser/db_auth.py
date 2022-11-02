@@ -131,9 +131,8 @@ def build_guest_token(secret):
 def promote_user_to_guest(secret):
 
     set_g_for_guest_token(secret)
-
     session["ut"] = g.user_token #this will unlock partial functionality
-    session['show_users_images_only']=False
+    
 
 
 def build_user_token(user, secret):
@@ -150,24 +149,20 @@ def build_user_token(user, secret):
 def promote_user_to_logged(user_obj, secret):
 
     token = build_user_token(user_obj, secret)
-
     session["ut"] = token #this will unlock full functionality
-    session['show_users_images_only']=False
+
 
 
 def user_login(user, secret):
         
     token = build_user_token(user, secret)
-
     session["ut"] = token #this will unlock full functionality
-    session['show_users_images_only']=False
+    
     
 
 def user_logout(secret):
     #log off user, user becomes GUEST
     promote_user_to_guest(secret)
-    session['show_users_images_only']=False
-    session['show_favs_only']=False
 
 #************************************
 #  USER STATE WITH GLOBAL VARIABLE  *
