@@ -100,7 +100,7 @@ def userprofile():
                 flash("User name already in use")
             else:
                 db_update_user_name(g.user_id, user_name)
-                #MUST UPADTE GLOBAL
+                #MUST UPATE GLOBAL
                 g.user_name = user_name
                 flash("User name updated!")
         elif 'btn_changeaccesskey'  in request.form:
