@@ -73,7 +73,7 @@ def manage_cookie_policy(view):
     return wrapped_view
 
 
-#Wrappers to secure endpoints
+#Wrappers/decorators to secure endpoints
 def login_required(view):
 
     @functools.wraps(view)
