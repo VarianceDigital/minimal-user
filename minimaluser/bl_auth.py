@@ -35,7 +35,10 @@ def signup():
                 email_link_token = create_email_link_token(new_id, email, os.environ["JWT_SECRET_HTML"])
                 
                 #Send confirmaton email with visible access key
-                ext_send_email(email, access_key,'https://minimal-user.variancedigital.com/emailconfirmationhtml/', 'emailservice-usr','signup', email_link_token)
+                ext_send_email(email, access_key,
+                               'https://minimal-user.variancedigital.com/emailconfirmationhtml/', 
+                               'emailservice-usr','signup', 
+                               email_link_token)
 
                 #Promote user to logged!
                 user_obj = {'aut_id':new_id, 'aut_email':email}
