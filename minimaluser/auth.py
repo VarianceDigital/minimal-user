@@ -1,10 +1,14 @@
 import functools
 from flask import current_app
 from flask import (
-    Blueprint, g, redirect, request, session,flash, url_for
+    Blueprint, g, redirect, request, session,flash, url_for, Response
 )
+from flask_login import current_user
+
 import os
 from .db_auth import *
+from .user_model import User     # new import
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 #IMPORTANT! Called for every request
@@ -30,17 +34,26 @@ def pre_operations():
     if policyCode !=None:
         g.policyCode = policyCode
 
-    #USER ACCESS MANAGEMENT
-    reset_g()
-    #if call comes from url, gets the token from session
-    user_token = session.get('ut') #user token
-    db_set_g_from_token(user_token,os.environ["JWT_SECRET_HTML"]) #sets g parameters from the token
-    if g.missing_token or g.invalid_token:
-        promote_user_to_guest(os.environ["JWT_SECRET_HTML"]) #function used in HTML version only
-        if g.invalid_token:
-            flash("Session expired")
-            return redirect("bl_home.index") #this will relaod g
-
+    # MAP current_user -> g.* so old code/templates keep working
+    if current_user.is_authenticated:
+        g.user_is_logged = True
+        g.user_confirmed = getattr(current_user, 'confirmed', False)
+        g.user_email = getattr(current_user, 'email', '')
+        g.user_name = getattr(current_user, 'name', '')
+        try:
+            g.user_id = int(current_user.id)
+        except (TypeError, ValueError):
+            g.user_id = None
+        g.missing_token = False   # legacy, but keeps templates safe
+        g.invalid_token = False
+    else:
+        g.user_is_logged = False
+        g.user_confirmed = False
+        g.user_email = ''
+        g.user_name = ''
+        g.user_id = None
+        g.missing_token = True
+        g.invalid_token = False
 
 #WRAPPER FOR COOKIE SETTINGS 
 def manage_cookie_policy(view):
@@ -57,26 +70,16 @@ def manage_cookie_policy(view):
     return wrapped_view
 
 
-#Wrappers/decorators to secure endpoints
-def login_required(view):
-
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if not g.user_is_logged:
-            return redirect(url_for('bl_home.index'))
-        return view(**kwargs)
-
-    return wrapped_view
-
 def confirmation_required(view):
 
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if not g.user_confirmed:
+        if not current_user.is_authenticated or not getattr(current_user, 'confirmed', False):
             return redirect(url_for('bl_home.index'))
         return view(**kwargs)
 
     return wrapped_view
+
 
 @bp.route('/ajcookiepolicy/',methods=('GET', 'POST'))
 def ajcookiepolicy():

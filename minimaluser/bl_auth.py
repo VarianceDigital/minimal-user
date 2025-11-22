@@ -1,11 +1,26 @@
 from flask import (
-    Blueprint, render_template, url_for, flash
+    Blueprint, render_template, url_for, flash, redirect, request, g
 )
 
-from .auth import *
-from .db_auth import *
-from .layoutUtils import *
+from flask_login import login_required, login_user, logout_user, current_user
+import jwt
 
+from .user_model import User
+
+from .auth import manage_cookie_policy
+from .db_auth import (
+    db_check_user, db_update_user, db_delete_account, db_get_user_data,
+    create_random_access_key,db_create_custom_name,db_create_custom_tile,
+    db_create_user_entry, create_email_link_token, validate_sign_up, 
+    ext_send_email, db_check_if_email_exists, db_get_user_by_id,
+    db_check_username,db_update_user_name, check_valid_key,db_update_user_key,
+    create_numeric_otp,db_save_otp_for_user_with_email,db_check_otp, db_reset_user_otp
+
+    # ...whatever else you actually use here...
+)
+from .layoutUtils import read_data_from_form, set_menu
+from .s3_operations import delete_file_from_s3, write_tile_to_s3
+import os
 
 bp = Blueprint('bl_auth', __name__, url_prefix='/auth')
 
@@ -41,9 +56,11 @@ def signup():
                                email_link_token)
 
                 #Promote user to logged!
-                user_obj = {'aut_id':new_id, 'aut_email':email}
-                promote_user_to_logged(user_obj, os.environ["JWT_SECRET_HTML"])
-
+                # Log the user in via Flask-Login (unconfirmed, but authenticated)
+                user_row = db_get_user_by_id(new_id)
+                user = User.from_db_row(user_row)
+                login_user(user)
+            
                 #Notify user!
                 flash("Wellcome to the 'Minimal+User' demo application.") 
                 flash("We sent you an email containing a link: please click the link and confirm your subscription.") 
@@ -62,14 +79,15 @@ def login():
     if request.method == 'POST':
         if 'btn_unlock' in request.form:
             form_data = read_data_from_form()
-            user = db_check_user(form_data)
-            if user:
-                user_login(user,os.environ["JWT_SECRET_HTML"]) #UNLOCK ALL FEATURES
+            user_row = db_check_user(form_data)
+            if user_row is None:
+                logout_user()
+                flash("Could not login!")
+            else:
+                user_obj = User.from_db_row(user_row)
+                login_user(user_obj) # Flask-login
                 flash("You are logged in :)") 
                 return redirect(url_for('bl_home.index'))
-            else:
-                user_logout(os.environ["JWT_SECRET_HTML"])
-                flash("Could not login!")
 
     return render_template('auth/login_frm.html', mc=mc)
 
@@ -77,7 +95,7 @@ def login():
 @bp.route('/logout')
 @manage_cookie_policy
 def logout():
-    user_logout(os.environ["JWT_SECRET_HTML"])
+    logout_user()
     flash("See you soon!") 
     return redirect(url_for('bl_home.index'))
 
@@ -234,7 +252,7 @@ def resetkey(token):
 def deleteaccount():
     
     tile_to_be_removed= db_delete_account(g.user_id)
-    user_logout(os.environ["JWT_SECRET_HTML"])
+    logout_user()
     
     delete_file_from_s3(tile_to_be_removed, os.environ["AWS_TILES_BUCKET_NAME"])
 

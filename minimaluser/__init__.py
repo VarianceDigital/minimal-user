@@ -1,8 +1,14 @@
 import os
 
 from flask import Flask
+from flask_login import LoginManager
+
 from .jinjafilters import *
 from .errorhandlers import *
+
+login_manager = LoginManager()
+login_manager.login_view = 'auth.login'          # name of your login view
+login_manager.login_message_category = 'warning'
 
 def create_app():
     # create and configure the app
@@ -14,6 +20,27 @@ def create_app():
     #ADDS HANDLER TO CLOSE DATABASE AT END OF SESSION!
     from . import db
     db.init_app(app)
+
+    # Flask-Login
+    login_manager.init_app(app)
+
+    # user_loader must be defined *after* app + DB
+    from .db_auth import db_get_user_by_id
+    from .user_model import User
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        # Flask-Login gives you a string; convert to int if needed
+        try:
+            aut_id = int(user_id)
+        except (TypeError, ValueError):
+            return None
+
+        row = db_get_user_by_id(aut_id)
+        if row is None:
+            return None
+        return User.from_db_row(row)
+
 
     from . import bl_home
     app.register_blueprint(bl_home.bp)

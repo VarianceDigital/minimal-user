@@ -13,165 +13,6 @@ import requests
 import uuid
 
 
-#************************************
-#  USER STATE WITH GLOBAL VARIABLE  *
-#            AND SESSION            *
-#               START               *
-#************************************
-
-def reset_g():
-    #DEFAULTS
-    g.user_id = None
-    g.user_email = ''
-    g.user_name = ''
-    g.user_is_logged = False
-    g.user_confirmed = False
-    g.missing_token = True #Becaomes False only if the JWT token is present
-    g.invalid_token = False #Becaomes True only if token EXISTS but is not valid
-    g.user_token = '' #Used for API that may return Guest token
-    
-
-def set_g_for_guest_token(secret):
-    token = build_guest_token(secret)
-
-    g.user_id = 0
-    g.user_email = 'guest@variancedigital.com'
-    g.user_name = 'guest'
-    g.user_is_logged = False #<--- the user is NOT logged in
-    g.user_confirmed = False
-    g.missing_token = False 
-    g.invalid_token = False #The token exists, is valid, and contains the GUEST user's data.
-    g.user_token = token
-
-
-def db_set_g_from_token(token,secret):
-    
-    if not token or len(token)==0:
-        #token is missing, g will contain default values
-        return 
-
-    #DECODE 
-    jwt_secret = secret
-    aut_id = ''
-    aut_email = ''
-
-    try:
-        decoded = jwt.decode(token, jwt_secret, algorithms=['HS256'])
-        aut_id = decoded['aut_id']
-        aut_email = decoded['aut_email']
-    except jwt.DecodeError:
-        g.user_id = None
-        g.user_email = ''
-        g.user_name = ''
-        g.user_is_logged = False 
-        g.user_confirmed = False
-        g.missing_token = False
-        g.invalid_token = True
-        g.user_token = ''
-        # something is wrong with existing token
-        return
-        
-    if aut_id==0:
-        #USER IS GUEST!
-        g.user_id = 0
-        g.user_email = 'guest@variancedigital.com'
-        g.user_name = 'guest'
-        g.user_is_logged = False #<--- the user is NOT logged in
-        g.user_confirmed = False
-        g.missing_token = False 
-        g.invalid_token = False #The token exists, is valid, and contains the GUEST user's data.
-        g.user_token = token
-    else:
-        #USER SHOULD EXIST        
-        db = get_db()
-        cur = db.cursor(cursor_factory=RealDictCursor)
-
-        #CHECK IF USER IS STILL VALID
-        cur.execute("""SELECT *
-                        FROM minimaluser.tbl_auth
-                        WHERE aut_id = %s AND aut_email= %s AND aut_isvalid=true""", (aut_id, aut_email,)
-        )
-
-        user = cur.fetchone()
-
-        cur.close()
-
-        if user is None:
-            #THE USER IS NOT IN THE DB!
-            g.user_id = None
-            g.user_email = ''
-            g.user_name = ''
-            g.user_is_logged = False #<--- the user is NOT logged in
-            g.user_confirmed = False
-            g.missing_token = False 
-            g.invalid_token = True #Token exists but is invalid!
-            g.user_token = ''
-        else:
-            g.user_id = user['aut_id']
-            g.user_email = user['aut_email']
-            g.user_name = user['aut_name']
-            g.user_is_logged = True #<--- the user IS logged in
-            g.user_confirmed = user['aut_confirmed']
-            g.missing_token = False 
-            g.invalid_token = False #The token exists, is valid and contains the specific user's data
-            g.user_token = token
-
-
-def build_guest_token(secret):
-
-    payloadJWT={}
-    payloadJWT["aut_id"] =0
-    payloadJWT["aut_email"]='guest@variancedigital.com'
-    payloadJWT["rand"] = create_random_access_key() #add random value to stir things up
-
-    #Convert payload into JWT token
-    return jwt.encode(payloadJWT, secret, algorithm='HS256')
-
-
-def promote_user_to_guest(secret):
-
-    set_g_for_guest_token(secret)
-    session["ut"] = g.user_token #this will unlock partial functionality
-    
-
-
-def build_user_token(user, secret):
-        
-    payloadJWT={}
-    payloadJWT["aut_id"]=user['aut_id']
-    payloadJWT["aut_email"]=user['aut_email']
-    payloadJWT["rand"]=random.random()
-
-    #Convert payload into JWT token
-    return jwt.encode(payloadJWT, secret, algorithm='HS256')
-
-
-def promote_user_to_logged(user_obj, secret):
-
-    token = build_user_token(user_obj, secret)
-    session["ut"] = token #this will unlock full functionality
-
-
-
-def user_login(user, secret):
-        
-    token = build_user_token(user, secret)
-    session["ut"] = token #this will unlock full functionality
-    
-    
-
-def user_logout(secret):
-    #log off user, user becomes GUEST
-    promote_user_to_guest(secret)
-
-#************************************
-#  USER STATE WITH GLOBAL VARIABLE  *
-#            AND SESSION            *
-#               END                 *
-#************************************
-
-
-
 #**********************************
 #  ACCESS KEY AND OTP UTILITIES   *
 #            START                *
@@ -446,6 +287,29 @@ def db_create_user_entry(email, access_key, custom_name, tile_filename):
 
     return newId
 
+def db_get_user_by_id(aut_id):
+    """
+    Helper used by Flask-Login to load a user by ID.
+    Returns a dict row from minimaluser.tbl_auth or None.
+    """
+    if aut_id is None:
+        return None
+
+    db = get_db()
+    cur = db.cursor(cursor_factory=RealDictCursor)
+    cur.execute(
+        """
+        SELECT *
+        FROM minimaluser.tbl_auth
+        WHERE aut_id = %s
+          AND aut_isvalid = true
+        """,
+        (aut_id,)
+    )
+    user = cur.fetchone()
+    cur.close()
+    return user
+
 
 def db_get_user_data(aut_id):
     db = get_db()
@@ -539,9 +403,7 @@ def ext_send_email(user_email, user_aut_key_or_otp, email_link_url, email_bluepr
     r = requests.get(mailer_url+email_blueprint+'/'+email_service+'/'+encoded_payload)
 
 
-def db_set_user_confirmed(user,secret):
-
-    promote_user_to_logged(user, secret)
+def db_set_user_confirmed(user_row):
 
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
@@ -551,7 +413,7 @@ def db_set_user_confirmed(user,secret):
 	                set aut_confirmed=true
 	                WHERE aut_id=%s
                     """, 
-                    (user['aut_id'],)
+                    (user_row['aut_id'],)
     )
     
     db.commit()

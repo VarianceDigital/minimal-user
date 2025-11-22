@@ -1,11 +1,11 @@
 from flask import (
     Blueprint, render_template, url_for, flash
 )
+from flask_login import login_required
 
-from .layoutUtils import *
-from .auth import *
-from .db_photoalbum import *
-
+from .layoutUtils import set_menu
+from .auth import manage_cookie_policy, confirmation_required
+from .db_photoalbum import db_get_all_images, db_get_image_details
 
 bp = Blueprint('bl_photoalbum', __name__, url_prefix='/album')
 
