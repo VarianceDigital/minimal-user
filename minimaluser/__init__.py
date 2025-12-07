@@ -7,7 +7,7 @@ from .jinjafilters import *
 from .errorhandlers import *
 
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'          # name of your login view
+login_manager.login_view = 'bl_auth.login'          # name of your login view
 login_manager.login_message_category = 'warning'
 
 def create_app():
