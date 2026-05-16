@@ -10,11 +10,11 @@ from .user_model import User
 from .auth import manage_cookie_policy
 from .db_auth import (
     db_check_user, db_update_user, db_delete_account, db_get_user_data,
-    create_random_access_key,db_create_custom_name,db_create_custom_tile,
+    create_random_access_key, db_create_custom_name, db_create_custom_tile,
     db_create_user_entry, create_email_link_token, validate_sign_up, 
     ext_send_email, db_check_if_email_exists, db_get_user_by_id,
-    db_check_username,db_update_user_name, check_valid_key,db_update_user_key,
-    create_numeric_otp,db_save_otp_for_user_with_email,db_check_otp, db_reset_user_otp
+    db_check_username, db_update_user_name, check_valid_key,db_update_user_key,
+    create_numeric_otp, db_save_otp_for_user_with_email, db_check_otp, db_reset_user_otp
 
     # ...whatever else you actually use here...
 )

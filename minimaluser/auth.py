@@ -1,7 +1,7 @@
 import functools
 from flask import current_app
 from flask import (
-    Blueprint, g, redirect, request, session,flash, url_for, Response
+    Blueprint, g, redirect, request, session, url_for, Response
 )
 from flask_login import current_user
 
