@@ -62,7 +62,7 @@ def db_save_otp_for_user_with_email(email, otp):
 def db_update_user_key(aut_id, access_key):
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
-    hash = generate_password_hash(access_key, "sha256")
+    hash = generate_password_hash(access_key, "pbkdf2:sha256")
     cur.execute("""
                     UPDATE minimaluser.tbl_auth
 	                set aut_key=%s, aut_key_temp=%s
@@ -108,11 +108,10 @@ def db_check_user(form_data):
 
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
-    #Check for VALID user
     cur.execute("""
-                SELECT * FROM minimaluser.tbl_auth 
-                WHERE aut_email=%s AND aut_isvalid=true 
-                """ , 
+                SELECT * FROM minimaluser.tbl_auth
+                WHERE aut_email=%s AND aut_isvalid=true
+                """ ,
                 (email,)
     )
 
@@ -266,7 +265,7 @@ def db_create_user_entry(email, access_key, custom_name, tile_filename):
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
 
-    hash = generate_password_hash(access_key, "sha256")
+    hash = generate_password_hash(access_key, "pbkdf2:sha256")
     #CREATE NEW USER
     cur.execute("""
                     INSERT INTO minimaluser.tbl_auth(
@@ -349,7 +348,7 @@ def db_update_user_name(aut_id, aut_name):
 def db_update_user(aut_id, email, access_key):
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
-    hash = generate_password_hash(access_key, "sha256")
+    hash = generate_password_hash(access_key, "pbkdf2:sha256")
     cur.execute("""
                     UPDATE minimaluser.tbl_auth
 	                set aut_email=%s, aut_key=%s, aut_key_temp=%s, aut_confirmed=false
