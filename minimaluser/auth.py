@@ -1,7 +1,7 @@
 import functools
 from flask import current_app
 from flask import (
-    Blueprint, g, redirect, request, session, url_for, Response
+    Blueprint, flash, g, redirect, request, session, url_for, Response
 )
 from flask_login import current_user
 
@@ -74,7 +74,11 @@ def confirmation_required(view):
 
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if not current_user.is_authenticated or not getattr(current_user, 'confirmed', False):
+        if not current_user.is_authenticated:
+            flash('To see all images please sign up or login.')
+            return redirect(url_for('bl_home.index'))
+        if not getattr(current_user, 'confirmed', False):
+            flash('Please confirm your email address to access the photo gallery.')
             return redirect(url_for('bl_home.index'))
         return view(**kwargs)
 
