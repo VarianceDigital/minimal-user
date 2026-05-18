@@ -44,16 +44,12 @@ def pre_operations():
             g.user_id = int(current_user.id)
         except (TypeError, ValueError):
             g.user_id = None
-        g.missing_token = False   # legacy, but keeps templates safe
-        g.invalid_token = False
     else:
         g.user_is_logged = False
         g.user_confirmed = False
         g.user_email = ''
         g.user_name = ''
         g.user_id = None
-        g.missing_token = True
-        g.invalid_token = False
 
 #WRAPPER FOR COOKIE SETTINGS 
 def manage_cookie_policy(view):
