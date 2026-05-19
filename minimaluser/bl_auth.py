@@ -62,7 +62,7 @@ def signup():
                 login_user(user)
             
                 #Notify user!
-                flash("Wellcome to the 'Minimal+User' demo application.") 
+                flash("Welcome to the 'Minimal+User' demo application.") 
                 flash("We sent you an email containing a link: please click the link and confirm your subscription.") 
                 flash("'Minimal+User' assigned you a user name: {}; you can change it using your profile.".format(custom_name)) 
                 flash("'Minimal+User' gave you a small pretty icon: hope you like it.") 
