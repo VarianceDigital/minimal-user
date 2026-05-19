@@ -288,7 +288,6 @@ def db_create_user_entry(email, access_key, custom_name, tile_filename):
 
 def db_get_user_by_id(aut_id):
     """
-    Helper used by Flask-Login to load a user by ID.
     Returns a dict row from minimaluser.tbl_auth or None.
     """
     if aut_id is None:
