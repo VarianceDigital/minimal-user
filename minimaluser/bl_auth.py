@@ -49,7 +49,7 @@ def signup():
                 #Prepare data for confirmation email
                 email_link_token = create_email_link_token(new_id, email, os.environ["JWT_SECRET_HTML"])
                 
-                #Send confirmaton email with visible access key
+                #Send confirmation email with visible access key
                 ext_send_email(email, access_key,
                                'https://minimal-user.variancedigital.com/emailconfirmationhtml/', 
                                'emailservice-usr','signup', 
@@ -158,7 +158,7 @@ def userprofile():
                 #Prepare data for confirmation email
                 email_link_token = create_email_link_token(g.user_id, email, os.environ["JWT_SECRET_HTML"])
                 
-                #Send confirmaton email with visible access key
+                #Send confirmation email with visible access key
                 ext_send_email(email, access_key, 'https://minimal-user.variancedigital.com/emailconfirmationhtml/', 'emailservice-usr','change', email_link_token)
 
                 #Notify user!
