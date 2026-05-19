@@ -116,7 +116,7 @@ def userprofile():
             if error == 120:
                 flash("User name too short")
             elif error == 121:
-                flash("User name too logn")
+                flash("User name too long")
             elif error == 122:
                 flash("User name already in use")
             else:
