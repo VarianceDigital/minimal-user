@@ -19,9 +19,10 @@ def emailconfirmationhtml(email_link_token):
     error, aut_id = db_check_email_link_token(email_link_token, os.environ["JWT_SECRET_HTML"])
     if error==0:
         user_row = db_get_user_data(aut_id)
+        db_set_user_confirmed(user_row)
+        user_row['aut_confirmed'] = True
         user = User.from_db_row(user_row)
         login_user(user)
-        db_set_user_confirmed(user_row)
         flash('Your email is confirmed, have fun')
     else:
         flash('Problems with your confirmation email')
